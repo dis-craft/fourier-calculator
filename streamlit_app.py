@@ -116,30 +116,28 @@ def parse_float_safe(s):
     except Exception:
         return 0.0
 
-# Quick fill buttons
+# Callback functions for buttons (use callbacks to update widget keys safely)
+def fill_x_callback():
+    # set x_input_i keys to 30° increments
+    for i in range(num_points):
+        st.session_state[f"x_input_{i}"] = f"{i * 30.0:.6f}"
+
+def clear_y_callback():
+    # reset y_input_i keys
+    for i in range(num_points):
+        st.session_state[f"y_input_{i}"] = "0.000000"
+
+# Quick fill buttons using on_click callbacks (avoids direct assignment inside main run)
 c1, c2 = st.columns(2)
 with c1:
-    if st.button("🔢 Fill X (30° increments)"):
-        for i in range(num_points):
-            st.session_state[f"x_input_{i}"] = f"{i * 30.0:.6f}"
-        st.experimental_rerun()
+    st.button("🔢 Fill X (30° increments)", on_click=fill_x_callback)
 with c2:
-    if st.button("🗑️ Clear Y Values"):
-        for i in range(num_points):
-            st.session_state[f"y_input_{i}"] = "0.000000"
-        st.experimental_rerun()
+    st.button("🗑️ Clear Y Values", on_click=clear_y_callback)
 
 # Collect parsed arrays
 x_vals = np.array([parse_float_safe(st.session_state.get(f"x_input_{i}", "0")) for i in range(num_points)], dtype=float)
 y_vals = np.array([parse_float_safe(st.session_state.get(f"y_input_{i}", "0")) for i in range(num_points)], dtype=float)
 x_rad = np.radians(x_vals)
-
-# Show live sums for input columns right away (so user sees sum without pressing calculate)
-# col_s1, col_s2 = st.columns([1, 1])
-# with col_s1:
-#     st.metric("Sum of x (degrees)", f"{x_vals.sum():.6f}")
-# with col_s2:
-#     st.metric("Sum of y", f"{y_vals.sum():.6f}")
 
 # ---------------- Function selection ----------------
 
@@ -432,4 +430,3 @@ st.markdown("""
         </p>
     </div>
 """, unsafe_allow_html=True)
-
